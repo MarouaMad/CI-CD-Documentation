@@ -39,8 +39,12 @@ COPY --from=build /app/build .
 
 ```
 
+# Commad to build an image from   Dockerfile 
+```
+docker build -t mynewimage  .
+```
 
-## Docker command 
+## Docker commands
 
 List of runinng container 
 
@@ -48,10 +52,27 @@ List of runinng container
 docker ps    
 ```
 
-List of containers 
+List of containers running and stopped containers 
 
 ```
-docker ps  -adocker-  
+docker ps -a 
+```
+stop a running container by id or by container name 
+```
+docker stop my_container
+```
+start a container by mentionning the name or the ID 
+ ```
+ docker start  my_container 
+ ```
+ download an image from the dockerhub repository 
+ ```
+ docker pull imageName 
+ ```
+pull the image and start the container 
+
+```
+docker run -d --name mycontainer  -p 80:80  
 ```
 
 
