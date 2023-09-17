@@ -6,25 +6,14 @@ services:
           privileged: true
           user: root
           ports:
-            - 8083:8080
+            - 8082:8080
             - 50000:50000
           container_name: jenkinsserver
           volumes:
             - jenkins-data:/var/jenkins_home
             - jenkins-home:/home
             - /var/run/docker.sock:/var/run/docker.sock
-            - /usr/local/bin/docker:/usr/local/bin/docker
-        
-          depends_on:
-            - docker
-      docker:
-          image: docker:dind
-          container_name: docker
-          privileged: true
-    
-          volumes:
-             - /var/lib/docker
-          restart: always
+       
           
 volumes:
   jenkins-data: {}
