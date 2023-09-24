@@ -64,4 +64,3 @@ volumes:
   postgresql:
   postgresql_data:
 
-  
