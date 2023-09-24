@@ -1,0 +1,106 @@
+// methode 1 
+pipeline {
+    
+agent any  
+tools {   //using plugins
+    nodejs 'nodejs'
+    dockerTool 'docker'
+}
+stages{
+    stage('Install Docker') {
+            steps {
+                script {
+                    sh 'curl -fsSL https://get.docker.com -o get-docker.sh'
+                    sh 'sh get-docker.sh'
+                }
+            }
+        }
+        
+    
+    stage("git clone"){
+        steps{
+       git branch:'main', url:'https://github.com/MarouaMad/CI-CD-Documentation.git'
+        }
+    }
+    
+      stage("install dependencies"){
+        steps{
+     
+           
+           sh 'npm install'
+       
+        }
+    }
+    
+      stage("build the project"){
+        steps{
+
+            sh 'npm run build'
+          
+       
+        }
+    }
+    
+  stage('sonrqube'){
+            agent { 
+                dockerContainer{ 
+                    image 'sonarsource/sonar-scanner-cli' 
+                    args '-v /var/run/docker.sock:/var/run/docker.sock --network documentation_devops'
+                } 
+            }
+            steps{             
+             sh '''
+              sonar-scanner \
+               -Dsonar.projectKey=jsappdemo \
+               -Dsonar.sources=. \
+               -Dsonar.host.url=http://sonarqube:9000 \
+               -Dsonar.login=admin \
+               -Dsonar.password=admin11
+             '''
+                }
+            
+        }
+    
+    
+     stage('Build Docker Image') {
+            steps {
+                script {
+                    def customImageTag = "my-image:v1"  // Specify your desired image tag here
+                    sh "docker build -t ${customImageTag} ."
+                }
+            }
+        }
+     stage('run container') {
+            steps {
+                script {
+                     def customImageTag = "my-image:v1" 
+                    sh "docker run -d -p 9090:80  --name  newcontainerjenkins ${customImageTag} "
+                }
+            }
+        }
+
+
+ 
+    
+}
+}
+
+
+
+
+
+
+
+
+    //stage("build the image using docker"){
+    
+  //  steps{
+     // script {
+         //def customImageTag = "my-image:v1"  // Specify your desired image tag here
+
+ // Build the Docker image from the 'Dockerfile' in the current directory
+       //  docker.build(customImageTag, '.')
+
+
+
+
