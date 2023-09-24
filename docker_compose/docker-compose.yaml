@@ -75,3 +75,8 @@ volumes:
   postgresql:
   postgresql_data:
 
+
+
+networks:
+  devops:
+    driver: bridge
