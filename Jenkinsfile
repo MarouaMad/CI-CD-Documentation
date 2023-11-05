@@ -7,14 +7,6 @@ tools {   //using plugins
     dockerTool 'docker'
 }
 stages{
-    stage('Install Docker') {
-            steps {
-                script {
-                    sh 'curl -fsSL https://get.docker.com -o get-docker.sh'
-                    sh 'sh get-docker.sh'
-                }
-            }
-        }
         
     
     stage("git clone"){
@@ -49,7 +41,31 @@ stages{
             }
         }
 
-    stage("SonarScanner")
+    stage("SonarScanner"){
+
+   agent { 
+                docker { 
+                    image 'sonarsource/sonar-scanner-cli' 
+                    args '-v /var/run/docker.sock:/var/run/docker.sock --network devops_devops'
+
+                } 
+            }
+            steps{
+             sh '''
+             curl http://sonarqube:9000 
+             
+              sonar-scanner \
+               -Dsonar.projectKey=test \
+               -Dsonar.sources=. \
+               -Dsonar.host.url=http://sonarqube:9000 \
+               -Dsonar.login=admin \
+               -Dsonar.password=sonar
+             '''
+            }
+            
+        }
+        
+    
      stage('run container') {
             steps {
                 script {

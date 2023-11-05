@@ -1,0 +1,85 @@
+version: '3'
+services:
+  jenkins:
+    image: jenkins/jenkins:alpine3.18-jdk11
+    container_name: jenkins
+    user: root
+    ports:
+      - 8082:8080
+      - 50000:50000
+    networks:
+      devops:
+           ipv4_address: 172.18.0.2
+    volumes:
+        - jenkins-data:/var/jenkins_home
+        - jenkins-home:/home
+        - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    privileged: true  # Add this line to enable privileged mode
+    depends_on:
+      - docker
+  docker:
+    image: docker:dind
+    container_name: docker
+    privileged: true
+    networks:
+      devops:
+        ipv4_address: 172.18.0.9
+    volumes:
+      - /var/lib/docker
+    restart: always
+    environment:
+      - SONARQUBE_HOST=http://sonarqube:9000
+  nexus:
+    image: sonatype/nexus3:3.55.0
+    container_name: nexus
+    privileged: true
+    user: root
+    networks:
+      devops:
+           ipv4_address: 172.18.0.3
+    ports:
+      - 8081:8081
+      - 8085:su
+    volumes:
+      - /home/nexus:/nexus-data
+    restart: always
+
+  sonarqube:
+    image: sonarqube:9.9.2-community
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - sonar.jdbc.url=jdbc:postgresql://db:5432/sonar
+    volumes:
+      - sonarqube_conf:/opt/sonarqube/conf
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    networks:
+      devops:
+           ipv4_address: 172.18.0.4
+  db: 
+     image: postgres
+     environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar
+     volumes:
+      - postgresql:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/data
+
+volumes:
+  sonarqube_conf: {}
+  sonarqube_data: {}
+  sonarqube_extensions: {}
+  postgresql: {}
+  postgresql_data: {}
+  jenkins-data: {}
+  jenkins-home: {}
+
+networks:
+  devops:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/24       
