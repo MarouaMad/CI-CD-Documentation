@@ -5,6 +5,6 @@
   tasks:
 
     - name: Run the Docker container
-      command: docker run -d -p 80:80 bilelabbass/repos_fromation:productionV03
+      command: sudo docker run -d -p 80:80 mimi360/deployprod:productionV03
       become_user: azureuser  # Replace with your Azure VM username
       become: yes
